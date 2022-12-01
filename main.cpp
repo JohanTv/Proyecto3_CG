@@ -142,11 +142,14 @@ int main() {
     glEnable(GL_DEPTH_TEST);
 
     Shader shader("../4.normal_mapping.vs", "../4.normal_mapping.fs");
+    // Shader lightingShader("../2.1.basic_lighting.vs", "../2.1.basic_lighting.fs");
+    Shader lightingShader("../2.2.basic_lighting.vs", "../2.2.basic_lighting.fs");
+    // Shader lightCubeShader("../2.2.light_cube.vs", "../2.2.light_cube.fs");
 
     // load textures
     // -------------
-    unsigned int diffuseMap = loadTexture("../resources/textures/brickwall.jpg");
-    unsigned int normalMap  = loadTexture("../resources/textures/brickwall_normal.jpg");
+    // unsigned int diffuseMap = loadTexture("../resources/textures/brickwall.jpg");
+    // unsigned int normalMap  = loadTexture("../resources/textures/brickwall_normal.jpg");
 
     // shader configuration
     // --------------------
@@ -159,7 +162,7 @@ int main() {
     vector<vec3> puntos, normales;
     
     //Generar PUNTOS
-    size_t number_of_points = 2;
+    size_t number_of_points = 5;
     float points_per_circ = 100.f;
     float step = 0.2;
     std::vector<vec3> puntosA(number_of_points);
@@ -194,10 +197,6 @@ int main() {
         zMenor = std::min(puntosA[i].z, puntosA[i+1].z); 
         zMayor = std::max(puntosA[i].z, puntosA[i+1].z);
 
-        //generar cilindro de x a x
-        long long capas_x, capas_y, capas_z;
-        capas_x = capas_y = capas_z = 0;
-
         for (float x = xMenor; x < xMayor; x += step) {
            for (int t = 0; t <= points_per_circ; ++t) {
                float angle = 2.f * 3.141592654f * t / points_per_circ;
@@ -206,10 +205,8 @@ int main() {
  
                puntos.emplace_back(vec3(x, puntosA[i].y + y_off, puntosA[i].z + z_off));
            }
-           capas_x++;
        }
 
-        //generar cilindro de y a y, empezando en nuevo x
         for (float y = yMenor; y < yMayor; y += step) {
            for (int t = 0; t <= points_per_circ; ++t) {
                float angle = 2.f * 3.141592654f * t / points_per_circ;
@@ -218,10 +215,8 @@ int main() {
  
                puntos.emplace_back(vec3(puntosA[i + 1].x + x_off, y, puntosA[i].z + z_off));
            }
-           capas_y++;
        }
 
-        //generar cilindro de z a z, empezando con nuevo 'x' e 'y'
         for (float z = zMenor; z < zMayor; z += step) {
            for (int t = 0; t <= points_per_circ; ++t) {
                float angle = 2.f * 3.141592654f * t / points_per_circ;
@@ -230,7 +225,6 @@ int main() {
  
                puntos.emplace_back(vec3(puntosA[i + 1].x + x_off, puntosA[i + 1].y + y_off, z));
            }
-           capas_z++;
        }
     }
 
@@ -262,25 +256,39 @@ int main() {
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
-        shader.use();
-        shader.setMat4("projection", projection);
-        shader.setMat4("view", view);
-        // render normal-mapped quad
+        // shader.use();
+        // shader.setMat4("projection", projection);
+        // shader.setMat4("view", view);
+        // // render normal-mapped quad
         glm::mat4 model = glm::mat4(1.0f);
-        shader.setMat4("model", model);
-        shader.setVec3("viewPos", camera.Position);
-        shader.setVec3("lightPos", lightPos);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, diffuseMap);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, normalMap);
+        // shader.setMat4("model", model);
+        // shader.setVec3("viewPos", camera.Position);
+        // shader.setVec3("lightPos", lightPos);
+        // glActiveTexture(GL_TEXTURE0);
+        // glBindTexture(GL_TEXTURE_2D, diffuseMap);
+        // glActiveTexture(GL_TEXTURE1);
+        // glBindTexture(GL_TEXTURE_2D, normalMap);
 
+        lightingShader.use();
+        lightingShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+        lightingShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+        lightingShader.setVec3("lightPos", lightPos);
+        lightingShader.setVec3("viewPos", camera.Position);
+        lightingShader.setMat4("projection", projection);
+        lightingShader.setMat4("view", view);
 
-        // world transformation
         model = glm::mat4(1.0f);
         model = glm::translate(model, lightPos);
         model = glm::scale(model, glm::vec3(0.1f));
-        shader.setMat4("model", model);
+
+        lightingShader.setMat4("model", model);
+
+
+        // world transformation
+        // model = glm::mat4(1.0f);
+        // model = glm::translate(model, lightPos);
+        // model = glm::scale(model, glm::vec3(0.1f));
+        // shader.setMat4("model", model);
         renderQuad();
 
         // render the cube

@@ -38,6 +38,7 @@ class Triangle {
       bitangent.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
 
       nm = glm::normalize(glm::cross(edge1, edge2));
+      // nm = glm::vec3(0.f, 0.f, 1.f);
     }
 
     // insertion stuff
