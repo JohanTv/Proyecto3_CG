@@ -15,6 +15,6 @@ out VS_OUT {
 void main() {
     vs_out.fragPos = vec3(model * vec4(aPos, 1.0));
     gl_Position = projection * view * vec4(vs_out.fragPos, 1.0);
-    vs_out.color = vec3(1,1,0);
+    vs_out.color = vec3(1,0,0);
     vs_out.normal = aNormal;
 }

@@ -3,7 +3,7 @@ project(Superficie)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(Superficie main.cpp glad.c)
+add_executable(Superficie main.cpp glad.c stb_image.h stb_image.cpp)
 
 if(UNIX AND NOT APPLE)
     find_package(GLEW REQUIRED)
